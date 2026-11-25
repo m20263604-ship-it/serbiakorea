@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HELLO, FRIENDS! · 세르비아어-한국어 교류 퀴즈</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Jua&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .home-wrap {
+      max-width: 760px; margin: 0 auto; min-height: 100vh;
+      padding: 40px 20px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+    }
+    .hero-card { width: 100%; padding: 42px 32px; }
+    .flags { font-size: 56px; margin-bottom: 12px; letter-spacing: 8px; }
+    .hero-title { font-size: 48px; font-weight: 700; color: var(--violet-deep); line-height: 1.1; }
+    .hero-sub { font-size: 22px; margin: 12px 0 32px; }
+    .role-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .role-btn {
+      padding: 26px 20px; text-decoration: none;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .role-icon { font-size: 44px; }
+    .role-name { font-size: 26px; }
+    .role-desc { font-size: 16px; opacity: 0.85; }
+    @media (max-width: 600px) {
+      .role-grid { grid-template-columns: 1fr; }
+      .hero-title { font-size: 38px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="home-wrap">
+    <div class="glass hero-card pop">
+      <div class="flags" aria-hidden="true">🇷🇸 🤝 🇰🇷</div>
+      <h1 class="hero-title en">HELLO, FRIENDS!</h1>
+      <p class="hero-sub muted">세르비아어 · 한국어 함께 배우기 실시간 퀴즈</p>
+
+      <div class="role-grid">
+        <a href="teacher.html" class="jelly btn-violet role-btn">
+          <span class="role-icon" aria-hidden="true">🧑‍🏫</span>
+          <span class="role-name">선생님 화면</span>
+          <span class="role-desc">방 만들기 · 문제 진행 · 정답 공개</span>
+        </a>
+        <a href="student.html" class="jelly btn-amber role-btn">
+          <span class="role-icon" aria-hidden="true">🎒</span>
+          <span class="role-name">학생 화면</span>
+          <span class="role-desc">QR 코드 또는 방 번호로 입장하기</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

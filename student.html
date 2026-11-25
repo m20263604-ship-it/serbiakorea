@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HELLO, FRIENDS! · 학생 화면</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Jua&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .wrap { max-width: 460px; margin: 0 auto; padding: 16px 16px 52px; }
+    .title-card { padding: 20px; text-align: center; margin-bottom: 14px; }
+    .title-card h1 { font-size: 34px; font-weight: 700; color: var(--violet-deep); }
+    .form-card { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+    .code-field { text-align: center; letter-spacing: 8px; font-weight: 700; }
+
+    .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .avatar-pick {
+      border: 2px solid rgba(255,255,255,0.9); background: rgba(255,255,255,0.6);
+      border-radius: 18px; padding: 8px 4px; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      font-family: var(--font-ko); font-size: 14px;
+    }
+    .avatar-pick .emoji { font-size: 30px; }
+    .avatar-pick.on { background: linear-gradient(180deg, #D9CCF6, #A98FEA); border-color: #fff; }
+    .join-btn { width: 100%; padding: 15px; font-size: 24px; }
+
+    /* #waiting */
+    .wait-wrap { text-align: center; padding-top: 24px; }
+    .wait-card { padding: 28px 20px; margin: 18px 0; font-size: 21px; line-height: 1.45; }
+
+    /* #play */
+    .play-top { padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .score-badge { background: linear-gradient(180deg, #A98FEA, #6A4BC8); color: #fff; font-weight: 700; }
+    .q-card { padding: 18px 16px 22px; margin-bottom: 14px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .q-main { font-size: 25px; font-weight: 700; line-height: 1.3; word-break: keep-all; }
+    .q-sub { font-size: 16px; color: var(--ink-soft); }
+
+    .opt-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .opt-btn {
+      min-height: 66px; padding: 12px 16px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    }
+    .opt-btn-main { font-size: 22px; font-weight: 700; }
+    .opt-btn-sub { font-size: 15px; opacity: 0.85; }
+    .opt-btn.is-picked { outline: 4px solid var(--violet-deep); }
+
+    .status-banner {
+      margin-top: 12px; padding: 14px; text-align: center; font-size: 19px;
+      background: rgba(255, 255, 255, 0.85);
+    }
+
+    /* 정답 공개 후 카드 */
+    .reveal-card {
+      margin-top: 14px; padding: 20px 16px; text-align: center;
+      background: linear-gradient(180deg, #FFF7DC, #FFE599);
+      border: 2px solid #fff;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .rev-result { font-size: 24px; font-weight: 700; }
+    .rev-words { font-size: 26px; font-weight: 700; color: var(--violet-deep); }
+    .rev-pron { font-size: 20px; color: var(--green); }
+    .rev-meaning { font-size: 19px; }
+
+    /* #ended */
+    .ended-card { padding: 24px 18px; text-align: center; margin-bottom: 14px; }
+    .big-rank { font-size: 54px; font-weight: 700; color: var(--violet-deep); line-height: 1.1; margin: 6px 0; }
+    .wrong-card { padding: 18px 16px; }
+    .wrong-item {
+      padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.78);
+      margin-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <!-- 1) 입장하기 -->
+    <section id="join">
+      <div class="glass title-card">
+        <div style="font-size:32px;">🇷🇸 🤝 🇰🇷</div>
+        <h1 class="en">HELLO, FRIENDS!</h1>
+        <p class="muted" style="margin:4px 0 0;font-size:18px;">이름과 동물 친구를 골라 입장해요</p>
+      </div>
+
+      <form id="joinForm" class="glass form-card" autocomplete="off">
+        <div>
+          <label style="display:block;font-size:18px;margin-bottom:6px;" for="inputCode">방 번호 (4자리)</label>
+          <input id="inputCode" class="field en code-field" type="text" inputmode="numeric" maxlength="4" placeholder="1234" required>
+        </div>
+        <div>
+          <label style="display:block;font-size:18px;margin-bottom:6px;" for="inputName">내 이름 (최대 10자)</label>
+          <input id="inputName" class="field" type="text" maxlength="10" placeholder="이름을 써 주세요" required>
+        </div>
+        <div>
+          <span style="display:block;font-size:18px;margin-bottom:6px;">동물 친구 고르기</span>
+          <div id="avatarGrid" class="avatar-grid"></div>
+        </div>
+        <button type="submit" id="btnJoin" class="jelly btn-violet join-btn">들어가기</button>
+      </form>
+    </section>
+
+    <!-- 2) 대기 화면 -->
+    <section id="waiting" class="hidden wait-wrap">
+      <div id="waitAvatar" style="display:flex;justify-content:center;"></div>
+      <div id="waitName" style="font-size:30px;margin-top:10px;"></div>
+      <div class="glass wait-card">
+        선생님이 1번 문제를 시작하면<br>화면에 문제가 나타나요!
+      </div>
+      <button type="button" id="btnRejoin" style="background:none;border:0;text-decoration:underline;color:var(--ink-soft);font-family:var(--font-ko);font-size:17px;cursor:pointer;">
+        다른 이름으로 다시 들어가기
+      </button>
+    </section>
+
+    <!-- 3) 문제 풀기 (#play) -->
+    <section id="play" class="hidden">
+      <div class="glass play-top">
+        <div class="row" style="gap:8px;">
+          <div id="playAvatar"></div>
+          <span id="playName" style="font-size:19px;"></span>
+        </div>
+        <span id="playScore" class="pill score-badge en">0점</span>
+      </div>
+
+      <div class="row" style="justify-content:space-between;padding:0 4px 10px;font-size:18px;">
+        <span id="sStep">문제 1</span>
+        <span id="sTimer" class="en" style="font-weight:700;">⏱ 00:20</span>
+      </div>
+
+      <div class="glass q-card">
+        <span id="sTypeLabel" class="pill" style="background:rgba(255,255,255,0.85);font-size:15px;color:var(--violet-deep);">Word Match</span>
+        <div id="sSceneBox" class="hidden"></div>
+        <div id="sPromptMain" class="q-main">문제를 불러오는 중...</div>
+        <div id="sPromptSub" class="q-sub"></div>
+        <button type="button" id="btnStudentSpeak" class="jelly btn-white" style="padding:8px 18px;font-size:18px;">🔊 발음 듣기</button>
+      </div>
+
+      <div id="sOptGrid" class="opt-grid"></div>
+
+      <div id="sWaitBanner" class="glass status-banner hidden">
+        제출 완료! 선생님이 정답을 공개할 때까지 기다려요 👀
+      </div>
+
+      <!-- 교사가 정답 공개 후 표시 -->
+      <div id="sRevealCard" class="glass reveal-card hidden pop">
+        <div id="sRevResult" class="rev-result">정답이에요! +100점</div>
+        <div id="sRevWords" class="rev-words">Zdravo · Здраво</div>
+        <div id="sRevPron" class="rev-pron">[근사 발음: 즈드라보]</div>
+        <div id="sRevMeaning" class="rev-meaning">안녕 (Hello / Hi)</div>
+        <button type="button" id="btnRevSpeak" class="jelly btn-amber" style="padding:9px 20px;font-size:18px;">🔊 듣고 따라 말하기</button>
+      </div>
+    </section>
+
+    <!-- 4) 최종 결과 (#ended) -->
+    <section id="ended" class="hidden">
+      <div class="glass ended-card pop">
+        <div id="endAvatar" style="display:flex;justify-content:center;"></div>
+        <div id="endName" style="font-size:22px;margin-top:6px;"></div>
+        <div id="endRank" class="big-rank">1등</div>
+        <div id="endScoreLine" style="font-size:22px;font-weight:700;color:var(--violet-deep);">0점 · 정답률 0%</div>
+      </div>
+
+      <div class="glass wrong-card">
+        <div style="font-size:21px;color:var(--violet-deep);">📝 내가 틀린 표현 다시 보기</div>
+        <div id="sWrongList"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+  <script src="config.js"></script>
+  <script src="common.js"></script>
+  <script src="questions.js"></script>
+  <script>
+    const PLAYER_KEY = 'hellofriends-player';
+    const AVATAR_NAMES = {
+      zebra: '얼룩말', panda: '판다', lion: '사자', tiger: '호랑이',
+      koala: '코알라', rabbit: '토끼', bear: '곰', fox: '여우'
+    };
+
+    let selectedAvatar = 'panda';
+    let session = null;     // { player_id, token, room_id, name, avatar, code }
+    let quizPayload = null; // 교사로부터 받은 현재 문제 상태
+    let myAnswers = {};     // { [qIndex]: choiceId } (문제당 1회만 제출)
+    let myScore = 0;
+    let clockTimer = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    function showScreen(name) {
+      for (const id of ['join', 'waiting', 'play', 'ended']) {
+        $(id).classList.toggle('hidden', id !== name);
+      }
+      if (name !== 'play' && clockTimer) {
+        clearInterval(clockTimer);
+        clockTimer = null;
+      }
+    }
+
+    function renderAvatarGrid() {
+      const grid = $('avatarGrid');
+      grid.innerHTML = '';
+      for (const [key, emoji] of Object.entries(AVATARS)) {
+        grid.appendChild(
+          el('button', {
+            type: 'button',
+            class: 'avatar-pick' + (selectedAvatar === key ? ' on' : ''),
+            onclick: () => { selectedAvatar = key; renderAvatarGrid(); }
+          },
+            el('span', { class: 'emoji' }, emoji),
+            el('span', {}, AVATAR_NAMES[key] || key)
+          )
+        );
+      }
+    }
+
+    $('joinForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = $('inputCode').value.trim();
+      const name = $('inputName').value.trim();
+      if (code.length !== 4 || !name) { toast('방 번호와 이름을 확인해 주세요.'); return; }
+
+      $('btnJoin').disabled = true;
+      try {
+        const res = await call('join_room', { p_code: code, p_name: name, p_avatar: selectedAvatar });
+        session = { player_id: res.player_id, token: res.token, room_id: res.room_id, name, avatar: selectedAvatar, code };
+        sessionStorage.setItem(PLAYER_KEY, JSON.stringify(session));
+        connectRoom();
+      } catch (err) {
+        toast(err.message);
+      } finally {
+        $('btnJoin').disabled = false;
+      }
+    });
+
+    function connectRoom() {
+      $('waitAvatar').innerHTML = '';
+      $('waitAvatar').appendChild(avatarEl({ id: session.player_id, avatar: session.avatar }, 110));
+      $('waitName').textContent = session.name;
+      showScreen('waiting');
+
+      // 교사 브로드캐스트 구독
+      db.channel('hf-quiz-' + session.room_id)
+        .on('broadcast', { event: 'quiz_state' }, ({ payload }) => {
+          quizPayload = payload;
+          renderPlayState();
+        })
+        .on('broadcast', { event: 'quiz_ended' }, ({ payload }) => {
+          renderEnded(payload);
+        })
+        .subscribe();
+
+      // 방 상태 폴링 보조
+      watch({
+        name: 'hf-student-room-' + session.room_id,
+        tables: [{ table: 'rooms', filter: 'id=eq.' + session.room_id }],
+        onChange: (p) => { if (p && p.new && p.new.status === 'playing' && !quizPayload) showScreen('play'); },
+        refresh: async () => {
+          const { data } = await db.from('rooms').select('*').eq('id', session.room_id).maybeSingle();
+          if (data && data.status === 'playing' && !quizPayload) showScreen('play');
+        }
+      });
+    }
+
+    function renderPlayState() {
+      if (!quizPayload || !quizPayload.question) return;
+      const q = quizPayload.question;
+      const revealed = quizPayload.phase === 'revealed' && quizPayload.reveal;
+      const pickedId = myAnswers[q.index];
+      const hasSubmitted = pickedId !== undefined;
+      const isExpired = quizPayload.timeLimitSec > 0 && quizPayload.qEndsAt && new Date(quizPayload.qEndsAt).getTime() <= Date.now();
+
+      const avBox = $('playAvatar');
+      if (!avBox.firstChild) avBox.appendChild(avatarEl({ id: session.player_id, avatar: session.avatar }, 38));
+      $('playName').textContent = session.name;
+      $('sStep').textContent = `문제 ${q.index + 1} / ${quizPayload.total}`;
+      $('sTypeLabel').textContent = q.label;
+
+      const sceneBox = $('sSceneBox');
+      if (q.showScene) {
+        sceneBox.innerHTML = sceneSvg(q.scene);
+        sceneBox.classList.remove('hidden');
+      } else {
+        sceneBox.classList.add('hidden');
+      }
+
+      $('sPromptMain').textContent = q.promptMain;
+      $('sPromptSub').textContent = q.promptSub;
+
+      // 선택지 (한 번 제출했거나, 시간 초과거나, 정답 공개 후에는 잠금)
+      const locked = hasSubmitted || isExpired || revealed;
+      const optGrid = $('sOptGrid');
+      optGrid.innerHTML = '';
+      q.options.forEach((opt, i) => {
+        let cls = `jelly opt-btn opt-${(i % 4) + 1}`;
+        if (hasSubmitted && Number(opt.id) === Number(pickedId)) cls += ' is-picked';
+        if (revealed) {
+          if (Number(opt.id) === Number(quizPayload.reveal.answerId)) cls += ' is-correct';
+          else if (hasSubmitted && Number(opt.id) === Number(pickedId)) cls += ' is-wrong';
+        }
+        optGrid.appendChild(
+          el('button', {
+            type: 'button',
+            class: cls,
+            disabled: locked,
+            onclick: () => submitChoice(q.index, opt.id)
+          },
+            el('div', { class: 'opt-btn-main' }, opt.main),
+            el('div', { class: 'opt-btn-sub' }, opt.sub)
+          )
+        );
+      });
+
+      // 교사가 정답을 공개하기 전까지는 대기 문구만 표시
+      $('sWaitBanner').classList.toggle('hidden', revealed || (!hasSubmitted && !isExpired));
+      if (!revealed && isExpired && !hasSubmitted) {
+        $('sWaitBanner').textContent = '시간이 끝났어요! 선생님이 정답을 공개할 때까지 기다려요 ⏰';
+      } else {
+        $('sWaitBanner').textContent = '제출 완료! 선생님이 정답을 공개할 때까지 기다려요 👀';
+      }
+
+      // 정답 공개 패널
+      const revCard = $('sRevealCard');
+      revCard.classList.toggle('hidden', !revealed);
+      if (revealed) {
+        const rev = quizPayload.reveal;
+        const gotRight = hasSubmitted && Number(pickedId) === Number(rev.answerId);
+        $('sRevResult').textContent = gotRight ? '🎉 정답이에요! (+100점)' : '💡 아쉽지만 다음 문제에 도전!';
+        $('sRevWords').textContent = `${rev.latin} · ${rev.cyrillic}`;
+        $('sRevPron').textContent = `[근사 발음: ${rev.pron}]`;
+        $('sRevMeaning').textContent = `${rev.ko} (${rev.en})`;
+        updateStudentScore();
+      }
+
+      showScreen('play');
+      startStudentClock();
+    }
+
+    function submitChoice(qIndex, choiceId) {
+      if (myAnswers[qIndex] !== undefined) return; // 응답 제출 이후 수정 불가
+      myAnswers[qIndex] = choiceId;
+      db.channel('hf-quiz-' + session.room_id).send({
+        type: 'broadcast',
+        event: 'student_submit',
+        payload: {
+          qIndex,
+          playerId: session.player_id,
+          choiceId
+        }
+      });
+      renderPlayState();
+    }
+
+    function updateStudentScore() {
+      if (!quizPayload || !quizPayload.reveal) return;
+      const qIdx = quizPayload.question.index;
+      if (Number(myAnswers[qIdx]) === Number(quizPayload.reveal.answerId)) {
+        // 중복 가산 방지를 위해 scoredIndices 세트 사용
+        if (!window._scored) window._scored = new Set();
+        if (!window._scored.has(qIdx)) {
+          window._scored.add(qIdx);
+          myScore += 100;
+          $('playScore').textContent = `${myScore}점`;
+        }
+      }
+    }
+
+    function startStudentClock() {
+      if (clockTimer) clearInterval(clockTimer);
+      const tick = () => {
+        if (!quizPayload) return;
+        const elTimer = $('sTimer');
+        if (quizPayload.timeLimitSec <= 0 || !quizPayload.qEndsAt) {
+          elTimer.textContent = '⏱ 자유 시간';
+          return;
+        }
+        if (quizPayload.phase === 'revealed') {
+          elTimer.textContent = '🗣️ 따라 말하기';
+          return;
+        }
+        const left = Math.max(0, (new Date(quizPayload.qEndsAt).getTime() - Date.now()) / 1000);
+        elTimer.textContent = `⏱ ${mmss(left)}`;
+        if (left <= 0 && myAnswers[quizPayload.question.index] === undefined) {
+          renderPlayState();
+        }
+      };
+      tick();
+      clockTimer = setInterval(tick, 250);
+    }
+
+    $('btnStudentSpeak').addEventListener('click', () => {
+      if (quizPayload && quizPayload.question) {
+        speakExpression(quizPayload.question.speechText, quizPayload.question.speechLang);
+      }
+    });
+
+    $('btnRevSpeak').addEventListener('click', () => {
+      if (quizPayload && quizPayload.reveal) {
+        speakExpression(quizPayload.reveal.speechText, quizPayload.reveal.speechLang);
+      }
+    });
+
+    function renderEnded(payload) {
+      const results = (payload && payload.results) || [];
+      const idx = results.findIndex((r) => r.id === session.player_id);
+      const me = idx >= 0 ? results[idx] : { score: myScore, correct: 0, total: 1, wrongItems: [] };
+      const rank = idx >= 0 ? idx + 1 : 1;
+      const acc = Math.round(((me.correct || 0) / Math.max(1, me.total || 1)) * 100);
+
+      $('endAvatar').innerHTML = '';
+      $('endAvatar').appendChild(avatarEl({ id: session.player_id, avatar: session.avatar }, 84));
+      $('endName').textContent = session.name;
+      $('endRank').textContent = `${rank}등`;
+      $('endScoreLine').textContent = `${me.score}점 · 정답률 ${acc}% (${me.correct}/${me.total})`;
+
+      const wrongList = $('sWrongList');
+      wrongList.innerHTML = '';
+      if (!me.wrongItems || me.wrongItems.length === 0) {
+        wrongList.appendChild(el('div', { class: 'muted', style: 'margin-top:10px;' }, '틀린 문제가 하나도 없어요! 최고예요 🌟'));
+      } else {
+        for (const w of me.wrongItems) {
+          wrongList.appendChild(
+            el('div', { class: 'wrong-item' },
+              el('div', {},
+                el('strong', { class: 'en' }, `${w.latin} (${w.cyrillic})`),
+                el('div', { class: 'muted', style: 'font-size:15px;' }, `${w.ko} · 발음: ${w.pron}`)
+              ),
+              el('button', {
+                type: 'button',
+                class: 'chip',
+                style: 'font-size:15px;',
+                onclick: () => speakExpression(w.speechText, w.speechLang)
+              }, '🔊 듣기')
+            )
+          );
+        }
+      }
+      showScreen('ended');
+    }
+
+    $('btnRejoin').addEventListener('click', () => {
+      const code = session ? session.code : '';
+      sessionStorage.removeItem(PLAYER_KEY);
+      session = null;
+      if (code) $('inputCode').value = code;
+      showScreen('join');
+    });
+
+    (function init() {
+      renderAvatarGrid();
+      const urlCode = (new URLSearchParams(location.search).get('code') || '').trim();
+      if (urlCode) $('inputCode').value = urlCode;
+      const saved = sessionStorage.getItem(PLAYER_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.player_id && (!urlCode || parsed.code === urlCode)) {
+            session = parsed;
+            connectRoom();
+            return;
+          }
+        } catch (_) {}
+      }
+      showScreen('join');
+    })();
+  </script>
+</body>
+</html>
